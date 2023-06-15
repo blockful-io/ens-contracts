@@ -203,6 +203,10 @@ contract ETHRegistrarController is
             expires
         );
 
+        if (referrer != address(0)) {
+            payable(referrer).transfer(msg.value / 10);
+        }
+
         if (msg.value > (price.base + price.premium)) {
             payable(msg.sender).transfer(
                 msg.value - (price.base + price.premium)
