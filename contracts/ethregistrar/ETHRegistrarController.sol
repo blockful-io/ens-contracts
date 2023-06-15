@@ -56,6 +56,7 @@ contract ETHRegistrarController is
         string name,
         bytes32 indexed label,
         address indexed owner,
+        address referrer,
         uint256 baseCost,
         uint256 premium,
         uint256 expires
@@ -196,6 +197,7 @@ contract ETHRegistrarController is
             name,
             keccak256(bytes(name)),
             owner,
+            referrer,
             price.base,
             price.premium,
             expires

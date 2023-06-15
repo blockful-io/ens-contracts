@@ -208,6 +208,61 @@ contract('ETHRegistrarController', function () {
         name,
         sha3(name),
         registrantAccount,
+        NULL_ADDRESS,
+        REGISTRATION_TIME,
+        0,
+        block.timestamp + REGISTRATION_TIME,
+      )
+
+    expect(
+      (await web3.eth.getBalance(controller.address)) - balanceBefore,
+    ).to.equal(REGISTRATION_TIME)
+  })
+
+  it('should permit new registrations with referral', async () => {
+    const name = 'newname'
+    const balanceBefore = await web3.eth.getBalance(controller.address)
+
+    txOptions = { value: BUFFERED_REGISTRATION_COST }
+
+    var commitment = await controller.makeCommitment(
+      name,
+      registrantAccount,
+      REGISTRATION_TIME,
+      secret,
+      NULL_ADDRESS,
+      [],
+      false,
+      0,
+    )
+    var tx = await controller.commit(commitment)
+    expect(await controller.commitments(commitment)).to.equal(
+      (await provider.getBlock(tx.blockNumber)).timestamp,
+    )
+
+    await evm.advanceTime((await controller.minCommitmentAge()).toNumber())
+
+    var tx = await controller.register(
+      name,
+      registrantAccount,
+      referrerAccount,
+      REGISTRATION_TIME,
+      secret,
+      NULL_ADDRESS,
+      [],
+      false,
+      0,
+      txOptions,
+    )
+
+    const block = await provider.getBlock(tx.blockNumber)
+    await expect(tx)
+      .to.emit(controller, 'NameRegistered')
+      .withArgs(
+        name,
+        sha3(name),
+        registrantAccount,
+        referrerAccount,
         REGISTRATION_TIME,
         0,
         block.timestamp + REGISTRATION_TIME,
@@ -269,6 +324,7 @@ contract('ETHRegistrarController', function () {
         'newconfigname',
         sha3('newconfigname'),
         registrantAccount,
+        NULL_ADDRESS,
         REGISTRATION_TIME,
         0,
         block.timestamp + REGISTRATION_TIME,
@@ -511,6 +567,7 @@ contract('ETHRegistrarController', function () {
         'newconfigname2',
         sha3('newconfigname2'),
         registrantAccount,
+        NULL_ADDRESS,
         REGISTRATION_TIME,
         0,
         block.timestamp + REGISTRATION_TIME,
