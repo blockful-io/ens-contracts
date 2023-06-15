@@ -39,6 +39,7 @@ contract('ETHRegistrarController', function () {
     '0x0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF'
   let ownerAccount // Account that owns the registrar
   let registrantAccount // Account that owns test names
+  let referrerAccount // Account that referred to registrantAccount
   let accounts = []
 
   async function registerName(
@@ -65,6 +66,7 @@ contract('ETHRegistrarController', function () {
     var tx = await controller.register(
       name,
       registrantAccount,
+      NULL_ADDRESS,
       REGISTRATION_TIME,
       secret,
       NULL_ADDRESS,
@@ -81,6 +83,7 @@ contract('ETHRegistrarController', function () {
     signers = await ethers.getSigners()
     ownerAccount = await signers[0].getAddress()
     registrantAccount = await signers[1].getAddress()
+    referrerAccount = await signers[3].getAddress()
     accounts = [ownerAccount, registrantAccount, signers[2].getAddress()]
 
     ens = await deploy('ENSRegistry')
@@ -248,6 +251,7 @@ contract('ETHRegistrarController', function () {
     var tx = await controller2.register(
       'newconfigname',
       registrantAccount,
+      NULL_ADDRESS,
       REGISTRATION_TIME,
       secret,
       resolver.address,
@@ -324,6 +328,7 @@ contract('ETHRegistrarController', function () {
       controller.register(
         'newconfigname',
         registrantAccount,
+        NULL_ADDRESS,
         REGISTRATION_TIME,
         secret,
         registrantAccount,
@@ -357,6 +362,7 @@ contract('ETHRegistrarController', function () {
       controller.register(
         'newconfigname',
         registrantAccount,
+        NULL_ADDRESS,
         REGISTRATION_TIME,
         secret,
         controller.address,
@@ -397,6 +403,7 @@ contract('ETHRegistrarController', function () {
       controller2.register(
         'awesome',
         registrantAccount,
+        NULL_ADDRESS,
         REGISTRATION_TIME,
         secret,
         resolver.address,
@@ -444,6 +451,7 @@ contract('ETHRegistrarController', function () {
       controller2.register(
         'awesome',
         registrantAccount,
+        NULL_ADDRESS,
         REGISTRATION_TIME,
         secret,
         resolver.address,
@@ -485,6 +493,7 @@ contract('ETHRegistrarController', function () {
     let tx2 = await controller.register(
       'newconfigname2',
       registrantAccount,
+      NULL_ADDRESS,
       REGISTRATION_TIME,
       secret,
       resolver.address,
@@ -534,6 +543,7 @@ contract('ETHRegistrarController', function () {
       controller.register(
         'newname2',
         registrantAccount,
+        NULL_ADDRESS,
         REGISTRATION_TIME,
         secret,
         NULL_ADDRESS,
@@ -568,6 +578,7 @@ contract('ETHRegistrarController', function () {
       controller.register(
         label,
         registrantAccount,
+        NULL_ADDRESS,
         REGISTRATION_TIME,
         secret,
         NULL_ADDRESS,
@@ -599,6 +610,7 @@ contract('ETHRegistrarController', function () {
       controller.register(
         'newname2',
         registrantAccount,
+        NULL_ADDRESS,
         REGISTRATION_TIME,
         secret,
         NULL_ADDRESS,
@@ -704,6 +716,7 @@ contract('ETHRegistrarController', function () {
     await controller.register(
       'reverse',
       registrantAccount,
+      NULL_ADDRESS,
       REGISTRATION_TIME,
       secret,
       resolver.address,
@@ -735,6 +748,7 @@ contract('ETHRegistrarController', function () {
     await controller.register(
       'noreverse',
       registrantAccount,
+      NULL_ADDRESS,
       REGISTRATION_TIME,
       secret,
       resolver.address,
@@ -766,6 +780,7 @@ contract('ETHRegistrarController', function () {
     await controller.register(
       label,
       registrantAccount,
+      NULL_ADDRESS,
       REGISTRATION_TIME,
       secret,
       resolver.address,
@@ -805,6 +820,7 @@ contract('ETHRegistrarController', function () {
     const tx = await controller.register(
       label,
       registrantAccount,
+      NULL_ADDRESS,
       REGISTRATION_TIME,
       secret,
       resolver.address,
@@ -848,6 +864,7 @@ contract('ETHRegistrarController', function () {
     const gasA = await controller2.estimateGas.register(
       label,
       registrantAccount,
+      NULL_ADDRESS,
       REGISTRATION_TIME,
       secret,
       resolver.address,
@@ -867,6 +884,7 @@ contract('ETHRegistrarController', function () {
     const gasB = await controller2.estimateGas.register(
       label,
       registrantAccount,
+      NULL_ADDRESS,
       REGISTRATION_TIME,
       secret,
       resolver2.address,
@@ -884,6 +902,7 @@ contract('ETHRegistrarController', function () {
     const tx = await controller2.register(
       label,
       registrantAccount,
+      NULL_ADDRESS,
       REGISTRATION_TIME,
       secret,
       resolver2.address,
@@ -940,6 +959,7 @@ contract('ETHRegistrarController', function () {
       controller.register(
         label,
         registrantAccount,
+        NULL_ADDRESS,
         REGISTRATION_TIME,
         secret,
         baseRegistrar.address,

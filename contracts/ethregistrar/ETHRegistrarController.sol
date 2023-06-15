@@ -148,6 +148,7 @@ contract ETHRegistrarController is
     function register(
         string calldata name,
         address owner,
+        address referrer,
         uint256 duration,
         bytes32 secret,
         address resolver,

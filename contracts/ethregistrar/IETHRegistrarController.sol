@@ -27,6 +27,7 @@ interface IETHRegistrarController {
     function register(
         string calldata,
         address,
+        address,
         uint256,
         bytes32,
         address,
