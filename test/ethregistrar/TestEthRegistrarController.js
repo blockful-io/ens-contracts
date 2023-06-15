@@ -49,6 +49,7 @@ contract('ETHRegistrarController', function () {
     var commitment = await controller.makeCommitment(
       name,
       registrantAccount,
+      NULL_ADDRESS,
       REGISTRATION_TIME,
       secret,
       NULL_ADDRESS,
@@ -228,6 +229,7 @@ contract('ETHRegistrarController', function () {
     var commitment = await controller.makeCommitment(
       name,
       registrantAccount,
+      referrerAccount,
       REGISTRATION_TIME,
       secret,
       NULL_ADDRESS,
@@ -289,6 +291,7 @@ contract('ETHRegistrarController', function () {
     var commitment = await controller2.makeCommitment(
       'newconfigname',
       registrantAccount,
+      NULL_ADDRESS,
       REGISTRATION_TIME,
       secret,
       resolver.address,
@@ -352,6 +355,7 @@ contract('ETHRegistrarController', function () {
       controller.makeCommitment(
         'newconfigname',
         registrantAccount,
+        NULL_ADDRESS,
         REGISTRATION_TIME,
         secret,
         NULL_ADDRESS,
@@ -366,6 +370,7 @@ contract('ETHRegistrarController', function () {
     const commitment = await controller.makeCommitment(
       'newconfigname',
       registrantAccount,
+      NULL_ADDRESS,
       REGISTRATION_TIME,
       secret,
       registrantAccount,
@@ -400,6 +405,7 @@ contract('ETHRegistrarController', function () {
     const commitment = await controller.makeCommitment(
       'newconfigname',
       registrantAccount,
+      NULL_ADDRESS,
       REGISTRATION_TIME,
       secret,
       controller.address,
@@ -436,6 +442,7 @@ contract('ETHRegistrarController', function () {
     const commitment = await controller2.makeCommitment(
       'awesome',
       registrantAccount,
+      NULL_ADDRESS,
       REGISTRATION_TIME,
       secret,
       resolver.address,
@@ -480,6 +487,7 @@ contract('ETHRegistrarController', function () {
     const commitment = await controller2.makeCommitment(
       'awesome',
       registrantAccount,
+      NULL_ADDRESS,
       REGISTRATION_TIME,
       secret,
       resolver.address,
@@ -532,6 +540,7 @@ contract('ETHRegistrarController', function () {
     const commitment = await controller.makeCommitment(
       'newconfigname2',
       registrantAccount,
+      NULL_ADDRESS,
       REGISTRATION_TIME,
       secret,
       resolver.address,
@@ -586,6 +595,7 @@ contract('ETHRegistrarController', function () {
       await controller.makeCommitment(
         'newname2',
         accounts[2],
+        NULL_ADDRESS,
         REGISTRATION_TIME,
         secret,
         NULL_ADDRESS,
@@ -621,6 +631,7 @@ contract('ETHRegistrarController', function () {
       await controller.makeCommitment(
         label,
         registrantAccount,
+        NULL_ADDRESS,
         REGISTRATION_TIME,
         secret,
         NULL_ADDRESS,
@@ -653,6 +664,7 @@ contract('ETHRegistrarController', function () {
     const commitment = await controller.makeCommitment(
       'newname2',
       registrantAccount,
+      NULL_ADDRESS,
       REGISTRATION_TIME,
       secret,
       NULL_ADDRESS,
@@ -760,6 +772,7 @@ contract('ETHRegistrarController', function () {
     const commitment = await controller.makeCommitment(
       'reverse',
       registrantAccount,
+      NULL_ADDRESS,
       REGISTRATION_TIME,
       secret,
       resolver.address,
@@ -792,6 +805,7 @@ contract('ETHRegistrarController', function () {
     const commitment = await controller.makeCommitment(
       'noreverse',
       registrantAccount,
+      NULL_ADDRESS,
       REGISTRATION_TIME,
       secret,
       resolver.address,
@@ -824,6 +838,7 @@ contract('ETHRegistrarController', function () {
     const commitment = await controller.makeCommitment(
       label,
       registrantAccount,
+      NULL_ADDRESS,
       REGISTRATION_TIME,
       secret,
       resolver.address,
@@ -864,6 +879,7 @@ contract('ETHRegistrarController', function () {
     const commitment = await controller.makeCommitment(
       label,
       registrantAccount,
+      NULL_ADDRESS,
       REGISTRATION_TIME,
       secret,
       resolver.address,
@@ -901,6 +917,7 @@ contract('ETHRegistrarController', function () {
     const commitment = await controller.makeCommitment(
       label,
       registrantAccount,
+      NULL_ADDRESS,
       REGISTRATION_TIME,
       secret,
       resolver.address,
@@ -1000,6 +1017,7 @@ contract('ETHRegistrarController', function () {
     var commitment = await controller.makeCommitment(
       label,
       registrantAccount,
+      NULL_ADDRESS,
       REGISTRATION_TIME,
       secret,
       baseRegistrar.address,

@@ -14,6 +14,7 @@ interface IETHRegistrarController {
     function makeCommitment(
         string memory,
         address,
+        address,
         uint256,
         bytes32,
         address,

@@ -113,6 +113,7 @@ contract ETHRegistrarController is
     function makeCommitment(
         string memory name,
         address owner,
+        address referrer,
         uint256 duration,
         bytes32 secret,
         address resolver,
@@ -129,6 +130,7 @@ contract ETHRegistrarController is
                 abi.encode(
                     label,
                     owner,
+                    referrer,
                     duration,
                     secret,
                     resolver,
@@ -168,6 +170,7 @@ contract ETHRegistrarController is
             makeCommitment(
                 name,
                 owner,
+                referrer,
                 duration,
                 secret,
                 resolver,
