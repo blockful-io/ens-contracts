@@ -272,7 +272,10 @@ contract('ETHRegistrarController', function () {
 
     expect(
       (await web3.eth.getBalance(controller.address)) - balanceBefore,
-    ).to.equal(REGISTRATION_TIME * 0.9)
+    ).to.equal(REGISTRATION_TIME)
+
+    const getBalanceFast = await controller.balances(controller.address)
+    console.log(getBalanceFast.toString())
   })
 
   it('should revert when not enough ether is transferred', async () => {
@@ -764,8 +767,91 @@ contract('ETHRegistrarController', function () {
   })
 
   it('should allow anyone to withdraw funds and transfer to the registrar owner', async () => {
-    await controller.withdraw({ from: ownerAccount })
-    expect(parseInt(await web3.eth.getBalance(controller.address))).to.equal(0)
+    await expect(
+      controller.withdraw(controller.address, { from: ownerAccount }),
+    ).to.be.revertedWith('InsufficientValue()')
+  })
+
+  it('should allow anyone to withdraw funds to the fee receiver', async () => {
+    const name = 'newname'
+    const referrerBalanceBefore = await web3.eth.getBalance(referrerAccount)
+    const controllerBalanceBefore = await web3.eth.getBalance(
+      controller.address,
+    )
+
+    txOptions = { value: BUFFERED_REGISTRATION_COST }
+
+    var commitment = await controller.makeCommitment(
+      name,
+      registrantAccount,
+      referrerAccount,
+      REGISTRATION_TIME,
+      secret,
+      NULL_ADDRESS,
+      [],
+      false,
+      0,
+    )
+    var tx = await controller.commit(commitment)
+    expect(await controller.commitments(commitment)).to.equal(
+      (await provider.getBlock(tx.blockNumber)).timestamp,
+    )
+
+    await evm.advanceTime((await controller.minCommitmentAge()).toNumber())
+
+    var tx = await controller.register(
+      name,
+      registrantAccount,
+      referrerAccount,
+      REGISTRATION_TIME,
+      secret,
+      NULL_ADDRESS,
+      [],
+      false,
+      0,
+      txOptions,
+    )
+
+    const block = await provider.getBlock(tx.blockNumber)
+    await expect(tx)
+      .to.emit(controller, 'NameRegistered')
+      .withArgs(
+        name,
+        sha3(name),
+        registrantAccount,
+        referrerAccount,
+        REGISTRATION_TIME,
+        0,
+        block.timestamp + REGISTRATION_TIME,
+      )
+
+    const getReferrerBalance = await controller.balances(referrerAccount)
+    const getControllerBalance = await controller.balances(controller.address)
+
+    expect(getReferrerBalance).to.equal(REGISTRATION_TIME * 0.1)
+
+    expect(getControllerBalance).to.equal(REGISTRATION_TIME * 0.9)
+
+    controller.withdraw(referrerAccount, { from: ownerAccount })
+    controller.withdraw(controller.address, { from: ownerAccount })
+
+    const response1 = await web3.eth.getBalance(referrerAccount)
+    const response2 = await web3.eth.getBalance(controller.address)
+
+    console.log(getReferrerBalance.toString())
+    console.log(referrerBalanceBefore)
+    console.log(response1)
+    console.log(getControllerBalance.toString())
+    console.log(controllerBalanceBefore)
+    console.log(response2)
+
+    expect(
+      (await web3.eth.getBalance(referrerAccount)) - referrerBalanceBefore,
+    ).to.equal(REGISTRATION_TIME * 0.1)
+
+    // expect(
+    //   (await web3.eth.getBalance(controller.address)) - controllerBalanceBefore,
+    // ).to.equal(REGISTRATION_TIME * 0.9)
   })
 
   it('should set the reverse record of the account', async () => {

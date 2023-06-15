@@ -51,6 +51,7 @@ contract ETHRegistrarController is
     INameWrapper public immutable nameWrapper;
 
     mapping(bytes32 => uint256) public commitments;
+    mapping(address => uint256) public balances;
 
     event NameRegistered(
         string name,
@@ -206,14 +207,17 @@ contract ETHRegistrarController is
             expires
         );
 
+        uint256 cost = (price.base + price.premium);
         if (referrer != address(0)) {
-            payable(referrer).transfer((price.base + price.premium) / 10);
+            uint256 referralFee = cost / 10;
+            balances[referrer] += referralFee;
+            balances[address(this)] += cost - referralFee;
+        } else {
+            balances[address(this)] += cost;
         }
 
-        if (msg.value > (price.base + price.premium)) {
-            payable(msg.sender).transfer(
-                msg.value - (price.base + price.premium)
-            );
+        if (msg.value > cost) {
+            payable(msg.sender).transfer(msg.value - cost);
         }
     }
 
@@ -236,8 +240,19 @@ contract ETHRegistrarController is
         emit NameRenewed(name, labelhash, msg.value, expires);
     }
 
-    function withdraw() public {
-        payable(owner()).transfer(address(this).balance);
+    function withdraw(address addr) public {
+        uint256 balance = balances[addr];
+
+        if (balance == 0) {
+            revert InsufficientValue();
+        }
+
+        if (addr == address(this)) {
+            addr = owner();
+        }
+
+        balances[addr] = 0;
+        payable(addr).transfer(balance);
     }
 
     function supportsInterface(
