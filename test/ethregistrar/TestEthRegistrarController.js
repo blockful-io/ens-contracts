@@ -270,7 +270,7 @@ contract('ETHRegistrarController', function () {
 
     expect(
       (await web3.eth.getBalance(controller.address)) - balanceBefore,
-    ).to.equal(REGISTRATION_TIME)
+    ).to.equal(REGISTRATION_TIME * 0.9)
   })
 
   it('should revert when not enough ether is transferred', async () => {

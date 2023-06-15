@@ -204,7 +204,7 @@ contract ETHRegistrarController is
         );
 
         if (referrer != address(0)) {
-            payable(referrer).transfer(msg.value / 10);
+            payable(referrer).transfer((price.base + price.premium) / 10);
         }
 
         if (msg.value > (price.base + price.premium)) {
