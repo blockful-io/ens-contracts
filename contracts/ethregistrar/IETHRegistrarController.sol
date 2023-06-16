@@ -37,5 +37,5 @@ interface IETHRegistrarController {
         uint16
     ) external payable;
 
-    function renew(string calldata, uint256) external payable;
+    function renew(string calldata, address, uint256) external payable;
 }

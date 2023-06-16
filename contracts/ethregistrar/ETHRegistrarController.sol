@@ -68,6 +68,7 @@ contract ETHRegistrarController is
     event NameRenewed(
         string name,
         bytes32 indexed label,
+        address referrer,
         uint256 cost,
         uint256 expires
     );
@@ -224,21 +225,28 @@ contract ETHRegistrarController is
 
     function renew(
         string calldata name,
+        address referrer,
         uint256 duration
     ) external payable override {
         bytes32 labelhash = keccak256(bytes(name));
         uint256 tokenId = uint256(labelhash);
+
         IPriceOracle.Price memory price = rentPrice(name, duration);
+
         if (msg.value < price.base) {
             revert InsufficientValue();
         }
         uint256 expires = nameWrapper.renew(tokenId, duration);
 
+        if (referralFee > 0) {
+            _setReferral(referrer, price.base);
+        }
+
         if (msg.value > price.base) {
             payable(msg.sender).transfer(msg.value - price.base);
         }
 
-        emit NameRenewed(name, labelhash, msg.value, expires);
+        emit NameRenewed(name, labelhash, referrer, msg.value, expires);
     }
 
     function setReferralFee(uint256 fee) public {

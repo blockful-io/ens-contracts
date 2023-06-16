@@ -33,6 +33,7 @@ contract StaticBulkRenewal is IBulkRenewal {
 
     function renewAll(
         string[] calldata names,
+        address referrer,
         uint256 duration
     ) external payable override {
         uint256 length = names.length;
@@ -43,7 +44,7 @@ contract StaticBulkRenewal is IBulkRenewal {
                 duration
             );
             uint256 totalPrice = price.base + price.premium;
-            controller.renew{value: totalPrice}(names[i], duration);
+            controller.renew{value: totalPrice}(names[i], referrer, duration);
             unchecked {
                 ++i;
                 total += totalPrice;

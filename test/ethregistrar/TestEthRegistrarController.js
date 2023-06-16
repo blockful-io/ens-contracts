@@ -701,7 +701,7 @@ contract('ETHRegistrarController', function () {
     var balanceBefore = await web3.eth.getBalance(controller.address)
     const duration = 86400
     const [price] = await controller.rentPrice(sha3('newname'), duration)
-    await controller.renew('newname', duration, { value: price })
+    await controller.renew('newname', NULL_ADDRESS, duration, { value: price })
     var newExpires = await baseRegistrar.nameExpires(sha3('newname'))
     var newFuseExpiry = (await nameWrapper.getData(nodehash))[2]
     expect(newExpires.toNumber() - expires.toNumber()).to.equal(duration)
@@ -724,7 +724,7 @@ contract('ETHRegistrarController', function () {
     var balanceBefore = await web3.eth.getBalance(controller.address)
     const duration = 86400
     const [price] = await controller.rentPrice(sha3('newname'), duration)
-    await controller2.renew('newname', duration, { value: price })
+    await controller2.renew('newname', NULL_ADDRESS, duration, { value: price })
     var newExpires = await baseRegistrar.nameExpires(sha3('newname'))
     const [, newFuses, newFuseExpiry] = await nameWrapper.getData(nodehash)
     expect(newExpires.toNumber() - expires.toNumber()).to.equal(duration)
@@ -733,6 +733,29 @@ contract('ETHRegistrarController', function () {
     expect(
       (await web3.eth.getBalance(controller.address)) - balanceBefore,
     ).to.equal(86400)
+  })
+
+  it('should allow referrer to renew a name for token owner ', async () => {
+    await registerName('newname')
+    var balanceBefore = await web3.eth.getBalance(controller.address)
+
+    const duration = 86400
+    const [price] = await controller.rentPrice(sha3('newname'), duration)
+    await controller2.renew('newname', referrerAccount, duration, {
+      value: price,
+    })
+
+    expect(
+      (await web3.eth.getBalance(controller.address)) - balanceBefore,
+    ).to.equal(86400)
+
+    expect(await controller.balances(referrerAccount)).to.equal(
+      86400 * (100 / (await controller.referralFee())),
+    )
+
+    expect(await controller.contractBalance()).to.equal(
+      REGISTRATION_TIME + 86400 * (1 - 100 / (await controller.referralFee())),
+    )
   })
 
   it('non wrapped names can renew', async () => {
@@ -749,7 +772,7 @@ contract('ETHRegistrarController', function () {
     var expires = await baseRegistrar.nameExpires(tokenId)
     const duration = 86400
     const [price] = await controller.rentPrice(tokenId, duration)
-    await controller.renew(label, duration, { value: price })
+    await controller.renew(label, NULL_ADDRESS, duration, { value: price })
 
     expect(await baseRegistrar.ownerOf(tokenId)).to.equal(ownerAccount)
     expect(await nameWrapper.ownerOf(nodehash)).to.equal(ZERO_ADDRESS)
@@ -758,9 +781,9 @@ contract('ETHRegistrarController', function () {
   })
 
   it('should require sufficient value for a renewal', async () => {
-    await expect(controller.renew('name', 86400)).to.be.revertedWith(
-      'InsufficientValue()',
-    )
+    await expect(
+      controller.renew('name', NULL_ADDRESS, 86400),
+    ).to.be.revertedWith('InsufficientValue()')
   })
 
   it('should allow anyone to withdraw funds and transfer to the registrar owner', async () => {

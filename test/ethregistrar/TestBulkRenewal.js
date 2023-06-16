@@ -121,14 +121,21 @@ contract('BulkRenewal', function (accounts) {
   })
 
   it('should raise an error trying to renew a nonexistent name', async () => {
-    await exceptions.expectFailure(bulkRenewal.renewAll(['foobar'], 86400))
+    await exceptions.expectFailure(
+      bulkRenewal.renewAll(['foobar'], EMPTY_ADDRESS, 86400),
+    )
   })
 
   it('should permit bulk renewal of names', async () => {
     const oldExpiry = await baseRegistrar.nameExpires(sha3('test2'))
-    const tx = await bulkRenewal.renewAll(['test1', 'test2'], 86400, {
-      value: 86401 * 2,
-    })
+    const tx = await bulkRenewal.renewAll(
+      ['test1', 'test2'],
+      EMPTY_ADDRESS,
+      86400,
+      {
+        value: 86401 * 2,
+      },
+    )
     assert.equal(tx.receipt.status, true)
     const newExpiry = await baseRegistrar.nameExpires(sha3('test2'))
     assert.equal(newExpiry - oldExpiry, 86400)
