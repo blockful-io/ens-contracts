@@ -214,7 +214,9 @@ contract ETHRegistrarController is
             revert InsufficientValue();
         }
 
-        if (referralFee > 0) {
+        if (referrer == address(0) || referralFee == 0) {
+            contractBalance += cost;
+        } else {
             _setReferral(referrer, cost);
         }
 
@@ -238,9 +240,7 @@ contract ETHRegistrarController is
         }
         uint256 expires = nameWrapper.renew(tokenId, duration);
 
-        if (referralFee > 0) {
-            _setReferral(referrer, price.base);
-        }
+        _setReferral(referrer, price.base);
 
         if (msg.value > price.base) {
             payable(msg.sender).transfer(msg.value - price.base);
@@ -310,13 +310,9 @@ contract ETHRegistrarController is
     }
 
     function _setReferral(address referrer, uint256 cost) internal {
-        if (referrer == address(0)) {
-            contractBalance += cost;
-        } else {
-            uint256 reward = (cost * 100) / referralFee;
-            balances[referrer] += reward;
-            contractBalance += cost - reward;
-        }
+        uint256 reward = (cost * 100) / referralFee;
+        balances[referrer] += reward;
+        contractBalance += cost - reward;
     }
 
     function _setRecords(
