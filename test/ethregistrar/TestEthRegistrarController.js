@@ -222,6 +222,7 @@ contract('ETHRegistrarController', function () {
   it('should permit new registrations with referral', async () => {
     const name = 'newname'
     const balanceBefore = await web3.eth.getBalance(controller.address)
+    const referrerBalance = await web3.eth.getBalance(referrerAccount)
 
     txOptions = { value: BUFFERED_REGISTRATION_COST }
 
@@ -271,6 +272,11 @@ contract('ETHRegistrarController', function () {
     expect(
       (await web3.eth.getBalance(controller.address)) - balanceBefore,
     ).to.equal(REGISTRATION_TIME * 0.9)
+
+    expect(
+      BigInt(await web3.eth.getBalance(referrerAccount)) -
+        BigInt(referrerBalance),
+    ).to.equal(BigInt(REGISTRATION_TIME * 0.1))
   })
 
   it('should revert when not enough ether is transferred', async () => {

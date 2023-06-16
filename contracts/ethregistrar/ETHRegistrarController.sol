@@ -52,6 +52,8 @@ contract ETHRegistrarController is
 
     mapping(bytes32 => uint256) public commitments;
 
+    uint256 public referralFee = 1000; // 10%
+
     event NameRegistered(
         string name,
         bytes32 indexed label,
@@ -203,8 +205,13 @@ contract ETHRegistrarController is
             expires
         );
 
-        if (referrer != address(0)) {
-            payable(referrer).transfer((price.base + price.premium) / 10);
+        if (referrer != address(0) && referralFee > 0) {
+            (bool sent, ) = payable(referrer).call{
+                value: ((price.base + price.premium) * 100) / referralFee
+            }("");
+            if (!sent) {
+                revert InsufficientValue();
+            }
         }
 
         if (msg.value > (price.base + price.premium)) {
@@ -231,6 +238,12 @@ contract ETHRegistrarController is
         }
 
         emit NameRenewed(name, labelhash, msg.value, expires);
+    }
+
+    function setReferralFee(uint256 fee) public {
+        if (msg.sender == owner() && fee <= 1000) {
+            referralFee = fee;
+        }
     }
 
     function withdraw() public {
