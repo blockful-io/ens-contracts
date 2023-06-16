@@ -53,7 +53,6 @@ contract ETHRegistrarController is
     mapping(bytes32 => uint256) public commitments;
     mapping(address => uint256) public balances;
 
-    uint256 public contractBalance;
     uint256 public referralFee = 1000; // 10%
 
     event NameRegistered(
@@ -252,22 +251,13 @@ contract ETHRegistrarController is
     }
 
     function withdraw(address addr) public {
-        uint256 balance;
-
-        if (addr == address(this)) {
-            balance = contractBalance;
-            contractBalance = 0;
-        } else {
-            balance = balances[addr];
-            balances[addr] = 0;
-        }
+        uint256 balance = balances[addr];
+        balances[addr] = 0;
 
         (bool sent, ) = payable(addr == address(this) ? owner() : addr).call{
             value: balance
         }("");
-        if (!sent) {
-            revert InsufficientValue();
-        }
+        if (!sent) revert InsufficientValue();
     }
 
     function supportsInterface(
@@ -307,11 +297,12 @@ contract ETHRegistrarController is
 
     function _setBalances(address referrer, uint256 cost) internal {
         if (referrer == address(0) || referralFee == 0) {
-            contractBalance += cost;
+            balances[address(this)] += cost;
         } else {
             uint256 reward = (cost * 100) / referralFee;
+
             balances[referrer] += reward;
-            contractBalance += cost - reward;
+            balances[address(this)] += cost - reward;
         }
     }
 

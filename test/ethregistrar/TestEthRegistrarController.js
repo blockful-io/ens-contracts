@@ -753,7 +753,7 @@ contract('ETHRegistrarController', function () {
       86400 * (100 / (await controller.referralFee())),
     )
 
-    expect(await controller.contractBalance()).to.equal(
+    expect(await controller.balances(controller.address)).to.equal(
       REGISTRATION_TIME + 86400 * (1 - 100 / (await controller.referralFee())),
     )
   })
@@ -838,7 +838,7 @@ contract('ETHRegistrarController', function () {
       )
 
     var referrerBalance = await controller.balances(referrerAccount)
-    var controllerBalance = await controller.contractBalance()
+    var controllerBalance = await controller.balances(controller.address)
 
     expect(referrerBalance).to.equal(REGISTRATION_TIME * 0.1)
     expect(controllerBalance).to.equal(REGISTRATION_TIME * 0.9)
@@ -847,7 +847,7 @@ contract('ETHRegistrarController', function () {
     await controller.withdraw(controller.address)
 
     referrerBalance = await controller.balances(referrerAccount)
-    controllerBalance = await controller.contractBalance()
+    controllerBalance = await controller.balances(controller.address)
 
     expect(referrerBalance).to.equal(0)
     expect(controllerBalance).to.equal(0)
