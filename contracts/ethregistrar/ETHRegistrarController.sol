@@ -164,9 +164,6 @@ contract ETHRegistrarController is
         uint16 ownerControlledFuses
     ) public payable override {
         IPriceOracle.Price memory price = rentPrice(name, duration);
-        if (msg.value < price.base + price.premium) {
-            revert InsufficientValue();
-        }
 
         _consumeCommitment(
             name,
@@ -210,15 +207,14 @@ contract ETHRegistrarController is
             expires
         );
 
-        uint256 cost = (price.base + price.premium);
+        uint256 cost = price.base + price.premium;
 
-        if (referrer != address(0) && referralFee > 0) {
-            uint256 fee = (cost * 100) / referralFee;
+        if (msg.value < cost) {
+            revert InsufficientValue();
+        }
 
-            balances[referrer] += fee;
-            contractBalance += cost - fee;
-        } else {
-            contractBalance += cost;
+        if (referralFee > 0) {
+            _setReferral(referrer, cost);
         }
 
         if (msg.value > cost) {
@@ -302,6 +298,16 @@ contract ETHRegistrarController is
 
         if (duration < MIN_REGISTRATION_DURATION) {
             revert DurationTooShort(duration);
+        }
+    }
+
+    function _setReferral(address referrer, uint256 cost) internal {
+        if (referrer == address(0)) {
+            contractBalance += cost;
+        } else {
+            uint256 reward = (cost * 100) / referralFee;
+            balances[referrer] += reward;
+            contractBalance += cost - reward;
         }
     }
 
