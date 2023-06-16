@@ -250,7 +250,7 @@ contract ETHRegistrarController is
     }
 
     function setReferralFee(uint256 fee) public {
-        if (msg.sender == owner() && fee >= 0 && fee <= 1000) {
+        if (msg.sender == owner() && fee <= 1000) {
             referralFee = fee;
         }
     }
