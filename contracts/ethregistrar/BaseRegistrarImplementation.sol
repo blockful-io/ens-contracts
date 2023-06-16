@@ -67,7 +67,7 @@ contract BaseRegistrarImplementation is ERC721, IBaseRegistrar, Ownable {
     }
 
     /**
-     * @dev Gets the owner of the specified token ID. Names become unowned
+     * @dev Gets the owner of the specified  token ID. Names become unowned
      *      when their registration expires.
      * @param tokenId uint256 ID of the token to query the owner of
      * @return address currently marked as the owner of the given token ID

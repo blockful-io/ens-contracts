@@ -53,6 +53,9 @@ contract ETHRegistrarController is
     mapping(bytes32 => uint256) public commitments;
     mapping(address => uint256) public balances;
 
+    uint256 public contractBalance;
+    uint256 public referralFee = 1000; // 10%
+
     event NameRegistered(
         string name,
         bytes32 indexed label,
@@ -208,12 +211,14 @@ contract ETHRegistrarController is
         );
 
         uint256 cost = (price.base + price.premium);
-        if (referrer != address(0)) {
-            uint256 referralFee = cost / 10;
-            balances[referrer] += referralFee;
-            balances[address(this)] += cost - referralFee;
+
+        if (referrer != address(0) && referralFee > 0) {
+            uint256 fee = (cost * 100) / referralFee;
+
+            balances[referrer] += fee;
+            contractBalance += cost - fee;
         } else {
-            balances[address(this)] += cost;
+            contractBalance += cost;
         }
 
         if (msg.value > cost) {
@@ -240,19 +245,29 @@ contract ETHRegistrarController is
         emit NameRenewed(name, labelhash, msg.value, expires);
     }
 
-    function withdraw(address addr) public {
-        uint256 balance = balances[addr];
-
-        if (balance == 0) {
-            revert InsufficientValue();
+    function setReferralFee(uint256 fee) public {
+        if (msg.sender == owner() && fee >= 0 && fee <= 1000) {
+            referralFee = fee;
         }
+    }
+
+    function withdraw(address addr) public {
+        uint256 balance;
 
         if (addr == address(this)) {
-            addr = owner();
+            balance = contractBalance;
+            contractBalance = 0;
+        } else {
+            balance = balances[addr];
+            balances[addr] = 0;
         }
 
-        balances[addr] = 0;
-        payable(addr).transfer(balance);
+        (bool sent, ) = payable(addr == address(this) ? owner() : addr).call{
+            value: balance
+        }("");
+        if (!sent) {
+            revert InsufficientValue();
+        }
     }
 
     function supportsInterface(
