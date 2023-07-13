@@ -71,6 +71,7 @@ contract ETHRegistrarController is
         uint256 cost,
         uint256 expires
     );
+    event ReferralFeeChanged(uint256 newFee);
 
     constructor(
         BaseRegistrarImplementation _base,
@@ -244,10 +245,11 @@ contract ETHRegistrarController is
         emit NameRenewed(name, labelhash, referrer, msg.value, expires);
     }
 
-    function setReferralFee(uint256 fee) public {
-        if (msg.sender == owner() && fee <= 1000) {
-            referralFee = fee;
+    function setReferralFee(uint256 newFee) public {
+        if (msg.sender == owner() && newFee <= 10000) {
+            referralFee = newFee;
         }
+        emit ReferralFeeChanged(newFee);
     }
 
     function withdraw(address addr) public {
@@ -299,7 +301,7 @@ contract ETHRegistrarController is
         if (referrer == address(0) || referralFee == 0) {
             balances[address(this)] += cost;
         } else {
-            uint256 reward = (cost * 100) / referralFee;
+            uint256 reward = (cost / 10000) * referralFee;
 
             balances[referrer] += reward;
             balances[address(this)] += cost - reward;

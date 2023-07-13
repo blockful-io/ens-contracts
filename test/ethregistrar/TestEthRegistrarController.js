@@ -750,7 +750,7 @@ contract('ETHRegistrarController', function () {
     ).to.equal(86400)
 
     expect(await controller.balances(referrerAccount)).to.equal(
-      86400 * (100 / (await controller.referralFee())),
+      86400 * (10000 / (await controller.referralFee())),
     )
 
     expect(await controller.balances(controller.address)).to.equal(
