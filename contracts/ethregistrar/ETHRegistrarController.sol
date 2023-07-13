@@ -54,6 +54,7 @@ contract ETHRegistrarController is
     mapping(address => uint256) public balances;
 
     uint256 public referralFee = 1000; // 10%
+    uint256 public withdrawMin = 1 ether; // 1 ETH
 
     event NameRegistered(
         string name,
@@ -71,6 +72,7 @@ contract ETHRegistrarController is
         uint256 cost,
         uint256 expires
     );
+    event MinimumWithdrawChanged(uint256 weiAmount);
     event ReferralFeeChanged(uint256 newFee);
 
     constructor(
@@ -248,8 +250,15 @@ contract ETHRegistrarController is
     function setReferralFee(uint256 newFee) public {
         if (msg.sender == owner() && newFee <= 10000) {
             referralFee = newFee;
+            emit ReferralFeeChanged(newFee);
         }
-        emit ReferralFeeChanged(newFee);
+    }
+
+    function setWithdrawMin(uint256 weiAmount) public {
+        if (msg.sender == owner()) {
+            withdrawMin = weiAmount;
+            emit MinimumWithdrawChanged(weiAmount);
+        }
     }
 
     function withdraw(address addr) public {
@@ -301,7 +310,7 @@ contract ETHRegistrarController is
         if (referrer == address(0) || referralFee == 0) {
             balances[address(this)] += cost;
         } else {
-            uint256 reward = (cost / 10000) * referralFee;
+            uint256 reward = (cost * referralFee) / 10000;
 
             balances[referrer] += reward;
             balances[address(this)] += cost - reward;
