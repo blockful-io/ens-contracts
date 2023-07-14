@@ -263,12 +263,13 @@ contract ETHRegistrarController is
 
     function withdraw(address addr) public {
         uint256 balance = balances[addr];
+        if (balance < withdrawMin) revert InsufficientValue();
+
         balances[addr] = 0;
 
-        (bool sent, ) = payable(addr == address(this) ? owner() : addr).call{
-            value: balance
-        }("");
-        if (!sent) revert InsufficientValue();
+        payable(addr == address(this) ? owner() : addr).call{value: balance}(
+            ""
+        );
     }
 
     function supportsInterface(
@@ -306,14 +307,14 @@ contract ETHRegistrarController is
         }
     }
 
-    function _setBalances(address referrer, uint256 cost) internal {
+    function _setBalances(address referrer, uint256 balance) internal {
         if (referrer == address(0) || referralFee == 0) {
-            balances[address(this)] += cost;
+            balances[address(this)] += balance;
         } else {
-            uint256 reward = (cost * referralFee) / 10000;
+            uint256 reward = (balance * referralFee) / 10000;
 
             balances[referrer] += reward;
-            balances[address(this)] += cost - reward;
+            balances[address(this)] += balance - reward;
         }
     }
 

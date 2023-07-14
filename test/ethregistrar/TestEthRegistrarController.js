@@ -254,6 +254,185 @@ contract('ETHRegistrarController', function () {
     expect(await controller.withdrawMin()).to.not.be.equal(weiAmount)
   })
 
+  it('should print gas for registrations types', async () => {
+    var name = 'newname1'
+
+    var commitment = await controller.makeCommitment(
+      name,
+      registrantAccount,
+      referrerAccount,
+      REGISTRATION_TIME,
+      secret,
+      NULL_ADDRESS,
+      [],
+      false,
+      0,
+    )
+    await controller.commit(commitment)
+
+    await evm.advanceTime((await controller.minCommitmentAge()).toNumber())
+
+    var gasUsedRegister = await controller.estimateGas.register(
+      name,
+      registrantAccount,
+      referrerAccount,
+      REGISTRATION_TIME,
+      secret,
+      NULL_ADDRESS,
+      [],
+      false,
+      0,
+      { value: BUFFERED_REGISTRATION_COST },
+    )
+    console.log('\nGas used for []: ' + gasUsedRegister)
+
+    var name = 'newname2'
+
+    var commitment = await controller.makeCommitment(
+      name,
+      registrantAccount,
+      referrerAccount,
+      REGISTRATION_TIME,
+      secret,
+      resolver.address,
+      [],
+      false,
+      0,
+    )
+    await controller.commit(commitment)
+
+    await evm.advanceTime((await controller.minCommitmentAge()).toNumber())
+
+    var gasUsedRegister = await controller.estimateGas.register(
+      name,
+      registrantAccount,
+      referrerAccount,
+      REGISTRATION_TIME,
+      secret,
+      resolver.address,
+      [],
+      false,
+      0,
+      { value: BUFFERED_REGISTRATION_COST },
+    )
+    console.log('\nGas used for [resolver]: ' + gasUsedRegister)
+
+    var name = 'newname3'
+
+    var commitment = await controller.makeCommitment(
+      name,
+      registrantAccount,
+      referrerAccount,
+      REGISTRATION_TIME,
+      secret,
+      resolver.address,
+      [],
+      true,
+      0,
+    )
+    await controller.commit(commitment)
+
+    await evm.advanceTime((await controller.minCommitmentAge()).toNumber())
+
+    var gasUsedRegister = await controller.estimateGas.register(
+      name,
+      registrantAccount,
+      referrerAccount,
+      REGISTRATION_TIME,
+      secret,
+      resolver.address,
+      [],
+      true,
+      0,
+      { value: BUFFERED_REGISTRATION_COST },
+    )
+    console.log('\nGas used for [resolver, reverse]: ' + gasUsedRegister)
+
+    var name = 'newname4'
+
+    var commitment = await controller.makeCommitment(
+      name,
+      registrantAccount,
+      referrerAccount,
+      REGISTRATION_TIME,
+      secret,
+      resolver.address,
+      [
+        resolver.interface.encodeFunctionData('setAddr(bytes32,address)', [
+          namehash(name + '.eth'),
+          registrantAccount,
+        ]),
+      ],
+      false,
+      0,
+    )
+    await controller.commit(commitment)
+
+    await evm.advanceTime((await controller.minCommitmentAge()).toNumber())
+
+    var gasUsedRegister = await controller.estimateGas.register(
+      name,
+      registrantAccount,
+      referrerAccount,
+      REGISTRATION_TIME,
+      secret,
+      resolver.address,
+      [
+        resolver.interface.encodeFunctionData('setAddr(bytes32,address)', [
+          namehash(name + '.eth'),
+          registrantAccount,
+        ]),
+      ],
+      false,
+      0,
+      { value: BUFFERED_REGISTRATION_COST },
+    )
+    console.log('\nGas used for [resolver, records]: ' + gasUsedRegister)
+
+    var name = 'newname5'
+
+    var commitment = await controller.makeCommitment(
+      name,
+      registrantAccount,
+      referrerAccount,
+      REGISTRATION_TIME,
+      secret,
+      resolver.address,
+      [
+        resolver.interface.encodeFunctionData('setAddr(bytes32,address)', [
+          namehash(name + '.eth'),
+          registrantAccount,
+        ]),
+      ],
+      true,
+      0,
+    )
+    await controller.commit(commitment)
+
+    await evm.advanceTime((await controller.minCommitmentAge()).toNumber())
+
+    var gasUsedRegister = await controller.estimateGas.register(
+      name,
+      registrantAccount,
+      referrerAccount,
+      REGISTRATION_TIME,
+      secret,
+      resolver.address,
+      [
+        resolver.interface.encodeFunctionData('setAddr(bytes32,address)', [
+          namehash(name + '.eth'),
+          registrantAccount,
+        ]),
+      ],
+      true,
+      0,
+      { value: BUFFERED_REGISTRATION_COST },
+    )
+    console.log(
+      '\nGas used for [resolver, records, reverse]: ' + gasUsedRegister,
+    )
+  })
+
   it('should permit new registrations with referral', async () => {
     const name = 'newname'
     const balanceBefore = await web3.eth.getBalance(controller.address)
@@ -794,11 +973,14 @@ contract('ETHRegistrarController', function () {
   })
 
   it('should allow anyone to withdraw funds and transfer to the registrar owner', async () => {
+    await controller.setWithdrawMin(ethers.utils.parseEther('0'))
     await controller.withdraw(controller.address, { from: ownerAccount })
     expect(parseInt(await web3.eth.getBalance(controller.address))).to.equal(0)
   })
 
   it('should allow anyone to withdraw funds to the fee receiver', async () => {
+    await controller.setWithdrawMin(ethers.utils.parseEther('0'))
+
     const name = 'newname'
 
     var commitment = await controller.makeCommitment(
