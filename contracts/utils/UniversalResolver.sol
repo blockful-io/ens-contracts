@@ -61,7 +61,7 @@ contract UniversalResolver is ERC165, Ownable {
     string[] public batchGatewayURLs;
     ENS public immutable registry;
 
-    constructor(address _registry, string[] memory _urls) {
+    constructor(address _registry, string[] memory _urls) Ownable(msg.sender) {
         registry = ENS(_registry);
         batchGatewayURLs = _urls;
     }
